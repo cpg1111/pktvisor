@@ -14,12 +14,11 @@ void BpfInputModulePlugin::_setup_routes(HttpServer &svr)
         json result;
         try {
             auto body = json::parse(req.body);
-            std::unordered_map<std::string, std::string> schema = {
-                {"name", "\\w+"},
-                {"probe_type", "[_a-z]+"}};
+            std::unordered_map<std::string, std::string> schema = {{"name", "\\w+"}}
             // TODO optional settings
             try {
-                _check_schema(body, schema, /* TODO optional schema */);
+                _check_schema(body, schema /* TODO optional schema */);
+                assert(body["enabled_probes"].is_array());
             } catch (const SchemaException &e) {
                 res.status = 400;
                 result["erro"] = e.what();
@@ -34,7 +33,7 @@ void BpfInputModulePlugin::_setup_routes(HttpServer &svr)
             
             {
                 auto input_stream = std::make_unique<BpfInputStream>(body["name"]);
-                input_stream->config_set("probe_type", body["probe_type"].get<std::string>());
+                input_stream->config_set("enabled_probes", body["enabled_probes"].get<std::vec<std::string>>());
                 // TODO set additional options
                 _input_manager->module_add(std::move(input_stream));
             }

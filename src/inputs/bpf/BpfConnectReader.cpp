@@ -1,6 +1,19 @@
 #include "BpfConnectHandler.h"
 
 namespace vizer::inputs::bpf {
+    std::string BpfConnectDataV4::_ip_str(uint32_t ip) {
+        uint8_t[4] octets;
+        for (int i = 0; i < 4; i++) {
+            octets.append(ip >> (i*8));
+        }
+        return Corrade::Utilify::formatString("{}.{}.{}.{}",
+            octets[0], octets[1], octets[2], octets[3]);
+    }
+
+    std::string BpfConnectDataV6::_ip_str(const uint64_t[2] ip) {
+        // TODO
+    }
+
     BpfConnectHandler::BpfConnectHandler(){}
 
     BpfConnectHandler::~BpfConnectHandler(){}
@@ -31,9 +44,9 @@ namespace vizer::inputs::bpf {
             throw Exception("error attaching tcpconnect bpf program");
         }
         if (do_count) {
-            this->read_connect_count(prog->maps.ipv4_count, prog->maps.ipv6_count);
+            read_connect_count(prog->maps.ipv4_count, prog->maps.ipv6_count);
         } else {
-            this->read_connect_trace(prog->maps.ipv4_connect_events, prog->maps.ipv6_connect_events);
+            read_connect_trace(prog->maps.ipv4_connect_events, prog->maps.ipv6_connect_events);
         }
     }
 #endif
@@ -41,14 +54,14 @@ namespace vizer::inputs::bpf {
     BpfConnectHandler::start_count() {
 #ifdef __BCC__
 #else
-        this->_start_libbpf_connect(true);
+        _start_libbpf_connect(true);
 #endif
     }
 
     BpfConnectHandler::start_trace() {
 #ifdef __BCC__
 #else
-        this->_start_libbpf_trace(false);
+        _start_libbpf_trace(false);
 #endif
     }
 }

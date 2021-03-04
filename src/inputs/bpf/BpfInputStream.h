@@ -1,11 +1,11 @@
 #pragma once
 
 #include "InputStream.h"
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
+//#pragma GCC diagnostic push
+//#pragma GCC diagnostic ignored "-Wold-style-cast"
+#include <sigslot/signal.>
 
 namespace vizer::input::bpf {
-#ifdef __linux__
 enum class BpfProgram {
     unknown,
     count_connect,
@@ -17,7 +17,11 @@ class BpfInputStream: public vizer::InputStream
 
 private:
     static const BpfSource DefaultBpfProgram = BpfProgram::count_connect; // TODO set default source
+
     BpfSource _cur_bpf_program{BpfProgram::unknown};
+
+    std::vec<std::string> enabled_probes;
+    std::vec<int> probe_fds;
 #ifndef __BCC__
     void _start_libbpf_connect(bool do_count);
 #endif
@@ -31,8 +35,12 @@ public:
     void start() override;
     void stop() override;
     json info_json() const override;
-    // TODO consumer_count
-    
+    size_t consumer_count()
+    {
+        
+    }
+
+    mutable sigslot::signal<const BpfConnectData &> tcp_connect_signal;
 };
 #endif
 }
