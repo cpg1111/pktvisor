@@ -37,7 +37,7 @@ public:
     json info_json() const override;
     size_t consumer_count()
     {
-        
+        return enabled_probes.size();
     }
 
     mutable sigslot::signal<const BpfConnectData &> tcp_connect_signal;
