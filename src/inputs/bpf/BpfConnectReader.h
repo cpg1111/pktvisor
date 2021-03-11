@@ -1,4 +1,19 @@
+#pragma once
+
 namespace vizer::inputs::bpf {
+
+struct ipv4_flow_key {
+    uint32_t saddr;
+    uint32_t daddr;
+    uint16_t dport;
+};
+
+struct ipv6_flow_key {
+    uint8_t saddr[16];
+    uint8_t daddr[16];
+    uint16_t dport;
+};
+
 class BpfConnectData {
     protected:
         virtual std::string src_ip_str();
@@ -29,9 +44,9 @@ class BpfConnectDataV4 : BpfConnectData {
 
 class BpfConnectDataV6 : BpfConnectData {
     private:
-        uint64_t _src_ip[2];
-        uint64_t _dst_ip[2];
-        std::string _ip_str(uint64_t[2] ip);
+        uint8_t _src_ip[16];
+        uint8_t _dst_ip[16];
+        std::string _ip_str(uint64_t[8] ip);
     protected:
         std::string src_ip_str() override;
         std::string dst_ip_str() override;
@@ -39,16 +54,10 @@ class BpfConnectDataV6 : BpfConnectData {
 
 
 class BpfConnectReader {
-    private:
-#ifndef __BCC__
-        void _start_libbpf_connect(bool do_count, pid_t pid, uid_t uid, int n_ports, int ports[MAX_PORTS]);
-#endif
     public:
         BpfConnectReader();
         ~BpfConnectReader();
-        void start_count();
-        void start_trace();
         void read_connect_count(int ipv4_map_fd, int ipv6_map_fd);
-        void read_connect_trace(int ipv4_map_fd, int ipv6_map_fd);
+        void read_connect_trace(int fd);
 };
 }

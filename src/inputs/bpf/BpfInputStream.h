@@ -42,5 +42,14 @@ public:
 
     mutable sigslot::signal<const BpfConnectData &> tcp_connect_signal;
 };
-#endif
+
+class BpfProbe {
+    private:
+        std::tuple<int, int> fds;
+    public:
+        virtual void start();
+        std::tuple<int, int> probe_fds(){
+            return fds;
+        };
+};
 }

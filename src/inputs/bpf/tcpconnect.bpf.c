@@ -1,3 +1,7 @@
+#ifdef BCC_SEC
+#define __BCC__
+#endif
+
 #ifdef __BCC__
 #include <uapi/linux/ptrace.h>
 #include <bcc/proto.h>
